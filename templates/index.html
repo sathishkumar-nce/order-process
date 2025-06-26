@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .processors {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+        
+        .processor-section {
+            padding: 40px;
+            border-right: 1px solid #eee;
+        }
+        
+        .processor-section:last-child {
+            border-right: none;
+        }
+        
+        .processor-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            color: #333;
+        }
+        
+        .processor-title h2 {
+            font-size: 1.8em;
+        }
+        
+        .processor-title i {
+            font-size: 2em;
+            color: #667eea;
+        }
+        
+        .description {
+            margin-bottom: 25px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .upload-section {
+            margin-bottom: 25px;
+        }
+        
+        .upload-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .drop-zone {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+            transform: translateY(-2px);
+        }
+        
+        .drop-zone i {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .drop-zone p {
+            color: #666;
+            font-size: 1em;
+            margin-bottom: 8px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            padding: 8px;
+            background: #e8f0ff;
+            border-radius: 5px;
+            color: #333;
+            font-weight: bold;
+            display: none;
+            font-size: 0.9em;
+        }
+        
+        .output-mode {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 8px;
+        }
+        
+        .output-mode h4 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 0.9em;
+        }
+        
+        .radio-option:hover {
+            border-color: #667eea;
+        }
+        
+        .radio-option input[type="radio"]:checked + label {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .text-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        
+        .text-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .char-count {
+            margin-top: 5px;
+            font-size: 0.8em;
+            color: #666;
+            text-align: right;
+        }
+        
+        .process-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .process-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status-loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .download-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .download-link:hover {
+            text-decoration: underline;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .processors {
+                grid-template-columns: 1fr;
+            }
+            
+            .processor-section {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .processor-section:last-child {
+                border-bottom: none;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .processor-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{.Title}}</h1>
+            <p>Extract data from PDFs and process SKU mappings with ease</p>
+        </div>
+        
+        <div class="processors">
+            <!-- PDF Processor -->
+            <div class="processor-section">
+                <div class="processor-title">
+                    <i>📄</i>
+                    <h2>PDF Processor</h2>
+                </div>
+                
+                <div class="description">
+                    Extract order data from PDF invoices and map SKUs to thickness and dimension data. Generate CSV reports or annotated PDF overlays.
+                </div>
+                
+                <form id="pdf-form" enctype="multipart/form-data">
+                    <div class="upload-section">
+                        <h3>Upload PDF Invoice</h3>
+                        <div class="drop-zone" onclick="document.getElementById('pdf-file').click()">
+                            <i>📄</i>
+                            <p>Click to select PDF file</p>
+                            <p style="font-size: 0.9em; color: #999;">Supports: PDF invoices</p>
+                        </div>
+                        <input type="file" id="pdf-file" name="pdf" accept=".pdf" class="file-input" required>
+                        <div id="pdf-file-name" class="file-name"></div>
+                    </div>
+                    
+                    <div class="upload-section">
+                        <h3>Upload SKU Mapping (Excel)</h3>
+                        <div class="drop-zone" onclick="document.getElementById('pdf-mapping').click()">
+                            <i>📊</i>
+                            <p>Click to select Excel file</p>
+                            <p style="font-size: 0.9em; color: #999;">Required columns: SKU, Thickness, Dimension</p>
+                        </div>
+                        <input type="file" id="pdf-mapping" name="mapping" accept=".xlsx,.xls" class="file-input" required>
+                        <div id="pdf-mapping-name" class="file-name"></div>
+                    </div>
+                    
+                    <div class="output-mode">
+                        <h4>Output Mode</h4>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="csv-mode" name="outputMode" value="csv" checked>
+                                <label for="csv-mode">📊 CSV Report</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="overlay-mode" name="outputMode" value="overlay">
+                                <label for="overlay-mode">📄 PDF Overlay</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="process-btn" id="pdf-btn">
+                        📄 Process PDF
+                    </button>
+                    
+                    <div id="pdf-status" class="status-message"></div>
+                </form>
+            </div>
+            
+            <!-- SKU Extractor -->
+            <div class="processor-section">
+                <div class="processor-title">
+                    <i>🏷️</i>
+                    <h2>SKU Extractor</h2>
+                </div>
+                
+                <div class="description">
+                    Extract SKUs from text content and map to thickness, dimension, and weight data. Generate detailed CSV reports with match statistics.
+                </div>
+                
+                <form id="sku-form" enctype="multipart/form-data">
+                    <div class="upload-section">
+                        <h3>Text Content with SKUs</h3>
+                        <textarea 
+                            id="text-content" 
+                            name="textContent" 
+                            class="text-input" 
+                            placeholder="Paste your text content here... 
+Example format:
+SKU: MRC-MR-0530
+SKU: MRC-MR-0376
+SKU: MRC-MR-0442
+
+The system will extract all 'SKU: [value]' patterns from your text."
+                            required></textarea>
+                        <div class="char-count" id="char-count">0 characters</div>
+                    </div>
+                    
+                    <div class="upload-section">
+                        <h3>Upload SKU Mapping (Excel)</h3>
+                        <div class="drop-zone" onclick="document.getElementById('sku-mapping').click()">
+                            <i>📊</i>
+                            <p>Click to select Excel file</p>
+                            <p style="font-size: 0.9em; color: #999;">Required columns: SKU, Thickness, Dimension, Weight</p>
+                        </div>
+                        <input type="file" id="sku-mapping" name="mapping" accept=".xlsx,.xls" class="file-input" required>
+                        <div id="sku-mapping-name" class="file-name"></div>
+                    </div>
+                    
+                    <button type="submit" class="process-btn" id="sku-btn">
+                        🏷️ Extract SKUs
+                    </button>
+                    
+                    <div id="sku-status" class="status-message"></div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>📄 PDF & SKU Processor | Extract • Map • Export</p>
+        </div>
+    </div>
+
+    <script>
+        // File input handlers
+        function setupFileInput(inputId, nameDisplayId) {
+            const input = document.getElementById(inputId);
+            const nameDisplay = document.getElementById(nameDisplayId);
+            
+            input.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    const fileName = this.files[0].name;
+                    nameDisplay.textContent = 'Selected: ' + fileName;
+                    nameDisplay.style.display = 'block';
+                } else {
+                    nameDisplay.style.display = 'none';
+                }
+            });
+        }
+        
+        // Setup file inputs
+        setupFileInput('pdf-file', 'pdf-file-name');
+        setupFileInput('pdf-mapping', 'pdf-mapping-name');
+        setupFileInput('sku-mapping', 'sku-mapping-name');
+        
+        // Character counter for text area
+        const textArea = document.getElementById('text-content');
+        const charCount = document.getElementById('char-count');
+        
+        textArea.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = count + ' characters';
+        });
+        
+        // Status message helper
+        function showStatus(statusId, type, message, downloadUrl = null) {
+            const statusDiv = document.getElementById(statusId);
+            statusDiv.className = 'status-message status-' + type;
+            
+            let content = message;
+            if (downloadUrl) {
+                content += '<br><a href="' + downloadUrl + '" class="download-link" download>📥 Download Result</a>';
+            }
+            
+            statusDiv.innerHTML = content;
+            statusDiv.style.display = 'block';
+        }
+        
+        // PDF Form Handler
+        document.getElementById('pdf-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const button = document.getElementById('pdf-btn');
+            
+            button.disabled = true;
+            button.textContent = '⏳ Processing PDF...';
+            showStatus('pdf-status', 'loading', '🔄 Processing PDF file, please wait...');
+            
+            try {
+                const response = await fetch('/process-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('pdf-status', 'success', result.message, result.output_url);
+                } else {
+                    showStatus('pdf-status', 'error', '❌ Error: ' + result.message);
+                }
+            } catch (error) {
+                showStatus('pdf-status', 'error', '❌ Network error: ' + error.message);
+            } finally {
+                button.disabled = false;
+                button.textContent = '📄 Process PDF';
+            }
+        });
+        
+        // SKU Form Handler
+        document.getElementById('sku-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const button = document.getElementById('sku-btn');
+            
+            button.disabled = true;
+            button.textContent = '⏳ Extracting SKUs...';
+            showStatus('sku-status', 'loading', '🔄 Extracting and mapping SKUs, please wait...');
+            
+            try {
+                const response = await fetch('/process-sku', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('sku-status', 'success', result.message, result.output_url);
+                } else {
+                    showStatus('sku-status', 'error', '❌ Error: ' + result.message);
+                }
+            } catch (error) {
+                showStatus('sku-status', 'error', '❌ Network error: ' + error.message);
+            } finally {
+                button.disabled = false;
+                button.textContent = '🏷️ Extract SKUs';
+            }
+        });
+        
+        // Drag and drop handlers
+        function setupDragAndDrop() {
+            const dropZones = document.querySelectorAll('.drop-zone');
+            
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('dragover');
+                });
+                
+                zone.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                });
+                
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        const input = this.parentElement.querySelector('input[type="file"]');
+                        input.files = files;
+                        input.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+        }
+        
+        setupDragAndDrop();
+        
+        // Radio button styling
+        document.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                
+                // Update visual state
+                document.querySelectorAll('.radio-option').forEach(opt => {
+                    opt.style.borderColor = '#ddd';
+                    opt.style.background = 'white';
+                });
+                
+                this.style.borderColor = '#667eea';
+                this.style.background = '#f8f9ff';
+            });
+        });
+    </script>
+</body>
+</html>
