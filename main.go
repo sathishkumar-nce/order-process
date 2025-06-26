@@ -15,7 +15,7 @@ import (
 const (
 	uploadDir = "./uploads"
 	outputDir = "./outputs"
-	port      = ":8080"
+	port      = "0.0.0.0:8080" // Listen on all interfaces
 )
 
 func main() {
@@ -36,11 +36,12 @@ func main() {
 	http.HandleFunc("/process-pdf", handlers.ProcessPDFHandler)
 	http.HandleFunc("/process-sku", handlers.ProcessSKUHandler)
 
-	fmt.Printf("🚀 PDF & SKU Processor Server starting on http://localhost%s\n", port)
+	fmt.Printf("🚀 PDF & SKU Processor Server starting on http://0.0.0.0:8080\n")
+	fmt.Printf("🌐 External access: http://YOUR_SERVER_IP:8080\n")
 	fmt.Println("📂 Upload directory:", uploadDir)
 	fmt.Println("📁 Output directory:", outputDir)
 	fmt.Println("🌐 Open your browser and navigate to the URL above")
-	
+
 	log.Fatal(http.ListenAndServe(port, nil))
 }
 
@@ -66,7 +67,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 func createTemplateFile() {
 	templatePath := filepath.Join("templates", "index.html")
-	
+
 	// Check if template already exists
 	if _, err := os.Stat(templatePath); err == nil {
 		return // File already exists
